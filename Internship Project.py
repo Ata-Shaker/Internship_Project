@@ -10,11 +10,11 @@ class MainWin(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.LAST_INNER_LAYOUT_POSITION = 3
+        self.LAST_INNER_LAYOUT_POSITION = 4
 
         # General Setup
         self.setWindowTitle("Photo Editor")
-        self.setFixedSize(400, 350)
+        self.setFixedSize(400, 400)
         self._centralWidget = QWidget(self)
         self.setCentralWidget(self._centralWidget)
         self.generalLayout = QVBoxLayout()
@@ -31,7 +31,11 @@ class MainWin(QMainWindow):
         self.layout.addWidget(self.pathDisplay)
         self.layout.addWidget(self.browseButton)
         self.generalLayout.insertLayout(1, self.layout)
-        self.generalLayout.insertSpacing(2, 20)
+        self.runButton = QPushButton('Run')
+        self.generalLayout.insertWidget(2, self.runButton)
+        self.generalLayout.insertSpacing(3, 20)
+
+        # self.runButton
 
         self.insertLayout()
 
@@ -95,7 +99,7 @@ class MainWinCtrl():
         self._view.browseButton.clicked.connect(self.browse)
 
     def browse(self):
-        self.folderName = QFileDialog.getExistingDirectory(self._view, 'Select a Folder', r'C:\Users\HP-ITU')
+        self.folderName = QFileDialog.getExistingDirectory(self._view, 'Select a Folder', QtCore.QDir.rootPath())
         self._view.pathDisplay.setText(self.folderName[0])
 
 
