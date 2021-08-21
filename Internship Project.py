@@ -3,9 +3,11 @@ import os
 from PySide6 import QtGui, QtCore
 from PySide6.QtWidgets import QApplication, QComboBox, QLabel, QMainWindow, QPlainTextEdit, QVBoxLayout, QFrame
 from PySide6.QtWidgets import QWidget, QPushButton, QLineEdit, QDialogButtonBox, QFileDialog, QGridLayout
-from PySide6.QtCore import QLine, Qt
+from PySide6.QtCore import Qt
 from PIL import Image, ImageDraw, ImageFont
 from functools import partial
+import re
+import numpy as np
 
 
 
@@ -60,7 +62,7 @@ class MainWin(QMainWindow):
         self.yCoordinate.setPlaceholderText('Enter the Y Coordinate')
         self.yCoordinate.setAlignment(Qt.AlignCenter)
         self.yCoordinate.setValidator(QtGui.QIntValidator(bottom = 0))
-        self.runButton1 = QPushButton('Run')
+        self.runButton1 = QPushButton('Merge')
         self.runButton1.setFixedHeight(25)
         self.firstLayout.addWidget(self.fileName, 5, 0, 1, 2)
         self.firstLayout.addWidget(self.yCoordinate, 5, 2, 1, 2 )
@@ -90,11 +92,11 @@ class MainWin(QMainWindow):
         # Buttons
         self.startTime = QLineEdit()
         self.startTime.setPlaceholderText('HH:MM:SS')
-        self.startTime.setValidator(QtGui.QRegularExpressionValidator(r"[1-9]{1,2}:[1-5]{0,1}[0-9]{1}:[1-5]{0,1}[0-9]{1}"))
+        self.startTime.setValidator(QtGui.QRegularExpressionValidator(r"[0-9]{1,2}:[0-5]{0,1}[0-9]{1}:[0-5]{0,1}[0-9]{1}"))
         self.startTime.setAlignment(Qt.AlignCenter)
         self.endTime = QLineEdit()
         self.endTime.setPlaceholderText('HH:MM:SS')
-        self.endTime.setValidator(QtGui.QRegularExpressionValidator(r"[1-9]{1,2}:[1-5]{0,1}[0-9]{1}:[1-5]{0,1}[0-9]{1}"))
+        self.endTime.setValidator(QtGui.QRegularExpressionValidator(r"[0-9]{1,2}:[0-5]{0,1}[0-9]{1}:[0-5]{0,1}[0-9]{1}"))
         self.endTime.setAlignment(Qt.AlignCenter)
         self.colorCombo = QComboBox()
         self.colorCombo.addItem('Black')
@@ -111,9 +113,10 @@ class MainWin(QMainWindow):
         self.plainTextLabel = QLabel('Comment:')
         self.secondLayout.addWidget(self.plainTextLabel, 2, 0)
         self.plainText = QPlainTextEdit()
+        self.plainText.setPlaceholderText('Enter Comment')
         self.secondLayout.addWidget(self.plainText, 3, 0, 1, 5)
 
-        self.runButton2 = QPushButton('Run')
+        self.runButton2 = QPushButton('Annotate')
         self.secondLayout.addWidget(self.runButton2, 4, 0, 1, 5)
 
         self.generalLayout.addLayout(self.secondLayout)
@@ -135,6 +138,12 @@ class MainWinCtrl():
         self.PIX_PER_SEC = 2.92  # Subject to Change. May need a funtion.
         self.COLORS = {"black": (0, 0, 0), "white": (255, 255, 255), "blue": (0, 0, 255), "red": (255, 0, 0), "green": (0, 255, 0),
                        "yellow": (255, 255, 0)}
+        self.destAddress = None
+        self.name = None
+        self.strt_time = None
+        self.end_time = None
+        self.text = None
+        self.color = None
 
         self._connectSignals()
 
@@ -179,34 +188,34 @@ class MainWinCtrl():
         self.canvas.save(f"{name}.png")
 
     def box_and_annotate(self):
-        destAddress = self._view.destDisplay.displayText()
-        name = self._view.fileName.displayText()
-        image  = Image.open(r'{}'.format(destAddress + f'/{name}.png'))
-        strt_time = self._view.startTime.displayText()
-        end_time = self._view.endTime.displayText()
-
-        text = self._view.plainText.displayText()
-        color = str(self._view.colorCombo.currentText())
+        self.destAddress = self._view.destDisplay.displayText()
+        self.name = self._view.fileName.displayText()
+        self.image  = Image.open(r'{}'.format(self.destAddress + f'/{self.name}.png'))
+        self.strt_time = self._view.startTime.displayText()
+        self.end_time = self._view.endTime.displayText()
+        self.text = self._view.plainText.toPlainText()
+        self.color = str(self._view.colorCombo.currentText()).lower()
         
-        strt_pix = self.time_to_pix(strt_time)
-        end_pix =  self.time_to_pix(end_time)
+        strt_pix = self.time_to_pix(self.strt_time)
+        end_pix =  self.time_to_pix(self.end_time)
+        
         frame = (strt_pix, 0, end_pix, self.SIZE[1])
         # Box
-        draw = ImageDraw.Draw(image)
-        draw.rectangle(frame, outline = self.COLORS[color], width=3)
+        draw = ImageDraw.Draw(self.image)
+        draw.rectangle(frame, outline = self.COLORS[self.color], width=3)
         #Annotate
         text_font = ImageFont.truetype(
             r"C:\Users\ata79\VSCodePy\PyProjects\Project\PlayfairDisplay-VariableFont_wght.ttf", size=11)
-        draw.text((strt_pix, self.SIZE[1] + 10), text, color, text_font)
+        draw.text((strt_pix, self.SIZE[1] + 10), self.text, self.color, text_font)
+        self.image.save(f"{self.name}.png")
 
-        return image
+
         
-    def time_to_pix(self, time):
-        assert (0 <= time[0]), "The hour value cannot be less than zero."
-        assert (0 <= time[1] <= 60), "The minute value must be between 0 and 60."
-        assert (0 <= time[2] <= 60), "The second value must be between 0 and 60."
-        seconds = time[0] * 3600 + time[1] * 60 + time[2]
-        return round(seconds * self.PIX_PER_SEC)  # May not need the round function
+        
+    def time_to_pix(self, times):
+        time = re.match(r'(?P<Hour>\d{1,2}):(?P<Minute>\d{1,2}):(?P<Second>\d{1,2})', times).groupdict()
+        seconds = int(time['Hour']) * 3600 + int(time['Minute']) * 60 + int(time['Second'])
+        return np.round(seconds * self.PIX_PER_SEC)  # May not need the round function
 
 def main():
     app = QApplication(sys.argv)
