@@ -1,9 +1,10 @@
 import sys
 import os
+from typing import Counter
 from PySide6 import QtGui, QtCore
 from PySide6.QtWidgets import QApplication, QComboBox, QLabel, QMainWindow, QPlainTextEdit, QVBoxLayout, QFrame
 from PySide6.QtWidgets import QWidget, QPushButton, QLineEdit, QDialogButtonBox, QFileDialog, QGridLayout
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PIL import Image, ImageDraw, ImageFont
 from functools import partial
 import re
@@ -144,6 +145,9 @@ class MainWinCtrl():
         self.end_time = None
         self.text = None
         self.color = None
+        self.counter = None
+        self.doneFlag = False
+
 
         self._connectSignals()
 
@@ -204,10 +208,13 @@ class MainWinCtrl():
         draw = ImageDraw.Draw(self.image)
         draw.rectangle(frame, outline = self.COLORS[self.color], width=3)
         #Annotate
-        text_font = ImageFont.truetype(
-            r"C:\Users\ata79\VSCodePy\PyProjects\Project\PlayfairDisplay-VariableFont_wght.ttf", size=11)
+        text_font = ImageFont.truetype(r'‪C:\Windows\Fonts\arial.ttf', size=11)
         draw.text((strt_pix, self.SIZE[1] + 10), self.text, self.color, text_font)
         self.image.save(f"{self.name}.png")
+        self._view.startTime.clear()
+        self._view.endTime.clear()
+        self._view.plainText.clear()
+
 
 
         
@@ -226,4 +233,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  
