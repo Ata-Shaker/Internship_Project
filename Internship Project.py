@@ -124,6 +124,7 @@ class MainWin(QMainWindow):
         self.stdBtns.setStandardButtons(QDialogButtonBox.Close)
         self.generalLayout.addWidget(self.stdBtns)
 
+        
         self._centralWidget.setLayout(self.generalLayout)
     
        
@@ -152,6 +153,7 @@ class MainWinCtrl():
         self._view.browseButton2.clicked.connect(partial(self.browse, 2))
         self._view.runButton1.clicked.connect(self.crop_and_merge)
         self._view.runButton2.clicked.connect(self.box_and_annotate)
+        self._view.stdBtns.clicked.connect(self._view.close)
 
     def browse(self, numOfDisplay):
         self.folderName = QFileDialog.getExistingDirectory(self._view, 'Select a Directory', QtCore.QDir.rootPath())
@@ -196,6 +198,7 @@ class MainWinCtrl():
 
             os.chdir(r'{}'.format(destAddress))
             self.canvas.save(f"{name}.png")
+            QMessageBox.information(None, 'Info', 'Done!')
 
     def box_and_annotate(self):
         #Error
@@ -231,6 +234,8 @@ class MainWinCtrl():
             self._view.startTime.clear()
             self._view.endTime.clear()
             self._view.plainText.clear()
+            QMessageBox.information(None, 'Info', 'Done!')
+
 
     def time_to_pix(self, times):
         time = re.match(r'(?P<Hour>\d{1,2}):(?P<Minute>\d{1,2}):(?P<Second>\d{1,2})', times).groupdict()
