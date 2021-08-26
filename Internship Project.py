@@ -180,6 +180,10 @@ class MainWinCtrl():
             y_cord = int(self._view.yCoordinate.displayText())
             os.chdir(r'{}'.format(srcAddress))
             images = [Image.open(image) for image in os.listdir()]
+            if images == []:
+                QMessageBox.critical(None, 'Directory Empty', 'Please choose a folder containing images.')
+                return None
+
             for image in images[0:-1]:
                 images[images.index(image)] = image.crop(
                     (0, 0, y_cord, self.SIZE[1]))
@@ -213,28 +217,32 @@ class MainWinCtrl():
         else:
             self.destAddress = self._view.destDisplay.displayText()
             self.name = self._view.fileName.displayText()
-            self.image  = Image.open(r'{}'.format(self.destAddress + f'/{self.name}.png'))
             self.strt_time = self._view.startTime.displayText()
             self.end_time = self._view.endTime.displayText()
             self.text = self._view.plainText.toPlainText()
             self.color = str(self._view.colorCombo.currentText()).lower()
-            
-            #Starting 
-            strt_pix = self.time_to_pix(self.strt_time)
-            end_pix =  self.time_to_pix(self.end_time)
-            
-            frame = (strt_pix, 0, end_pix, self.SIZE[1])
-            # Box
-            draw = ImageDraw.Draw(self.image)
-            draw.rectangle(frame, outline = self.COLORS[self.color], width=3)
-            #Annotate
-            text_font = ImageFont.truetype(r'‪C:\Windows\Fonts\arial.ttf', size=11)
-            draw.text((strt_pix, self.SIZE[1] + 10), self.text, self.color, text_font)
-            self.image.save(f"{self.name}.png")
-            self._view.startTime.clear()
-            self._view.endTime.clear()
-            self._view.plainText.clear()
-            QMessageBox.information(None, 'Info', 'Done!')
+            try:
+                self.image  = Image.open(r'{}'.format(self.destAddress + f'/{self.name}.png'))
+            except:
+                QMessageBox.critical(None, 'File Non-Existant', 'Make sure the File Name you provided is valid.')
+            else:
+                
+                #Starting 
+                strt_pix = self.time_to_pix(self.strt_time)
+                end_pix =  self.time_to_pix(self.end_time)
+                
+                frame = (strt_pix, 0, end_pix, self.SIZE[1])
+                # Box
+                draw = ImageDraw.Draw(self.image)
+                draw.rectangle(frame, outline = self.COLORS[self.color], width=3)
+                #Annotate
+                text_font = ImageFont.truetype(r'‪C:\Windows\Fonts\arial.ttf', size=11)
+                draw.text((strt_pix, self.SIZE[1] + 10), self.text, self.color, text_font)
+                self.image.save(f"{self.name}.png")
+                self._view.startTime.clear()
+                self._view.endTime.clear()
+                self._view.plainText.clear()
+                QMessageBox.information(None, 'Info', 'Done!')
 
 
     def time_to_pix(self, times):
