@@ -55,14 +55,16 @@ class MainWin(QMainWindow):
         self.fileName = QLineEdit()
         self.fileName.setPlaceholderText('Enter the Name')
         self.fileName.setAlignment(Qt.AlignCenter)
+        self.firstLayout.addWidget(self.fileName, 5, 0, 1, 2)
+
         self.yCoordinate = QLineEdit() 
         self.yCoordinate.setPlaceholderText('Enter the Y Coordinate')
         self.yCoordinate.setAlignment(Qt.AlignCenter)
         self.yCoordinate.setValidator(QtGui.QIntValidator(bottom = 0))
+        self.firstLayout.addWidget(self.yCoordinate, 5, 2, 1, 2 )
+
         self.runButton1 = QPushButton('Merge')
         self.runButton1.setFixedHeight(25)
-        self.firstLayout.addWidget(self.fileName, 5, 0, 1, 2)
-        self.firstLayout.addWidget(self.yCoordinate, 5, 2, 1, 2 )
         self.firstLayout.addWidget(self.runButton1, 6, 0, 1, 4)
 
         self.generalLayout.addLayout(self.firstLayout)
@@ -142,9 +144,6 @@ class MainWinCtrl():
         self.end_time = None
         self.text = None
         self.color = None
-        self.counter = None
-        self.doneFlag = False
-
 
         self._connectSignals()
 
@@ -179,7 +178,9 @@ class MainWinCtrl():
             name = self._view.fileName.displayText()
             y_cord = int(self._view.yCoordinate.displayText())
             os.chdir(r'{}'.format(srcAddress))
-            images = [Image.open(image) for image in os.listdir()]
+
+            imageNameList = [re.findall(r'^.+\.png|^.+\.jpg|^.+\.jpeg', imageName)[0] for imageName in os.listdir() if re.findall(r'^.+\.png|^.+\.jpg|^.+\.jpeg', imageName) != []]
+            images = [Image.open(image) for image in imageNameList]
             if images == []:
                 QMessageBox.critical(None, 'Directory Empty', 'Please choose a folder containing images.')
                 return None
@@ -193,11 +194,11 @@ class MainWinCtrl():
             total_width = sum(widths)
             max_height = max(heights)
             self.canvas = Image.new("RGB", size=(
-                total_width, max_height + 50), color=(255, 255, 255))
+                total_width, max_height + 80), color=(255, 255, 255))
             x_offset = 0
 
             for image in images:
-                self.canvas.paste(image, (x_offset, 0))
+                self.canvas.paste(image, (x_offset, 30))
                 x_offset += image.size[0]
 
             os.chdir(r'{}'.format(destAddress))
@@ -231,7 +232,7 @@ class MainWinCtrl():
                 strt_pix = self.time_to_pix(self.strt_time)
                 end_pix =  self.time_to_pix(self.end_time)
                 
-                frame = (strt_pix, 0, end_pix, self.SIZE[1])
+                frame = (strt_pix, 30, end_pix, self.SIZE[1] + 30)
                 # Box
                 draw = ImageDraw.Draw(self.image)
                 draw.rectangle(frame, outline = self.COLORS[self.color], width=3)
