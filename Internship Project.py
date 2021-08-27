@@ -6,6 +6,7 @@ from PySide6.QtCore import Qt
 from PIL import Image, ImageDraw, ImageFont
 from functools import partial
 import numpy as np
+from datetime import datetime, timedelta
 
 
 class MainWin(QMainWindow):
@@ -14,7 +15,7 @@ class MainWin(QMainWindow):
 
         # General Setup
         self.setWindowTitle("Photo Editor")
-        self.setFixedSize(420, 470)
+        self.setFixedSize(600, 550)
         self._centralWidget = QWidget(self)
         self.setCentralWidget(self._centralWidget)
         self.generalLayout = QVBoxLayout()
@@ -30,11 +31,8 @@ class MainWin(QMainWindow):
         self.srcDisplay.setAlignment(Qt.AlignCenter)
         self.srcDisplay.setReadOnly(True)
         self.browseButton1 = QPushButton('Browse')
-        self.firstLayout.addWidget(self.srcDisplay, 1, 0, 1, 3)
-        self.firstLayout.addWidget(self.browseButton1, 1, 3, 1, 1)
-
-        self.srcDisplay.displayText()
-
+        self.firstLayout.addWidget(self.srcDisplay, 1, 0, 1, 5)
+        self.firstLayout.addWidget(self.browseButton1, 1, 5, 1, 1)
 
         self.destPathLabel = QLabel('Destination Path:')
         self.firstLayout.addWidget(self.destPathLabel, 2, 0)
@@ -43,29 +41,45 @@ class MainWin(QMainWindow):
         self.destDisplay.setAlignment(Qt.AlignCenter)
         self.destDisplay.setReadOnly(True)
         self.browseButton2 = QPushButton('Browse')
-        self.firstLayout.addWidget(self.destDisplay, 3, 0, 1, 3)
-        self.firstLayout.addWidget(self.browseButton2, 3, 3, 1 ,1)
+        self.firstLayout.addWidget(self.destDisplay, 3, 0, 1, 5)
+        self.firstLayout.addWidget(self.browseButton2, 3, 5, 1 ,1)
 
         self.fileNameLabel = QLabel('File Name:')
+        self.firstLayout.addWidget(self.fileNameLabel, 4, 0, 1, 3)
         self.yCoordinateLabel = QLabel('Y Coordinate:')
-        self.firstLayout.addWidget(self.fileNameLabel, 4,0,1,2)
-        self.firstLayout.addWidget(self.yCoordinateLabel, 4,2,1,2)
-
-
+        self.firstLayout.addWidget(self.yCoordinateLabel, 4, 3, 1, 3)
+        
         self.fileName = QLineEdit()
         self.fileName.setPlaceholderText('Enter the Name')
         self.fileName.setAlignment(Qt.AlignCenter)
-        self.firstLayout.addWidget(self.fileName, 5, 0, 1, 2)
+        self.firstLayout.addWidget(self.fileName, 5, 0, 1, 3)
 
         self.yCoordinate = QLineEdit() 
         self.yCoordinate.setPlaceholderText('Enter the Y Coordinate')
         self.yCoordinate.setAlignment(Qt.AlignCenter)
         self.yCoordinate.setValidator(QtGui.QIntValidator(bottom = 0))
-        self.firstLayout.addWidget(self.yCoordinate, 5, 2, 1, 2 )
+        self.firstLayout.addWidget(self.yCoordinate, 5, 3, 1, 3 )
+
+        self.recordStartTimeLabel = QLabel('Record Start Time:')
+        self.firstLayout.addWidget(self.recordStartTimeLabel, 6, 0, 1, 3)
+        self.singularTimeLengthLabel = QLabel('Duration of Each File: (Seconds)')
+        self.firstLayout.addWidget(self.singularTimeLengthLabel, 6, 3, 1, 3)
+
+        self.recordStartTime = QLineEdit()
+        self.recordStartTime.setPlaceholderText('HH:MM:SS')
+        self.recordStartTime.setAlignment(Qt.AlignCenter)
+        self.recordStartTime.setValidator(QtGui.QRegularExpressionValidator(r"[0-1]{0,1}[0-9]{1}:[0-5]{0,1}[0-9]{1}:[0-5]{0,1}[0-9]{1}|[2]{1}[0-4]{1}:[0-5]{0,1}[0-9]{1}:[0-5]{0,1}[0-9]{1}"))
+        self.firstLayout.addWidget(self.recordStartTime, 7, 0, 1, 3)
+
+        self.singularTimeLength = QLineEdit()
+        self.singularTimeLength.setPlaceholderText('Enter the Duration of Each Image in Seconds')
+        self.singularTimeLength.setAlignment(Qt.AlignCenter)
+        self.singularTimeLength.setValidator(QtGui.QIntValidator(bottom = 0))
+        self.firstLayout.addWidget(self.singularTimeLength, 7, 3, 1, 3)
 
         self.runButton1 = QPushButton('Merge')
         self.runButton1.setFixedHeight(25)
-        self.firstLayout.addWidget(self.runButton1, 6, 0, 1, 4)
+        self.firstLayout.addWidget(self.runButton1, 8, 0, 1, 6)
 
         self.generalLayout.addLayout(self.firstLayout)
 
@@ -176,7 +190,11 @@ class MainWinCtrl():
             srcAddress = self._view.srcDisplay.displayText()
             destAddress = self._view.destDisplay.displayText()
             name = self._view.fileName.displayText()
-            y_cord = int(self._view.yCoordinate.displayText())
+            yCord = int(self._view.yCoordinate.displayText())
+
+            recordStart = self._view.recordStartStime.text()
+            recordStartDic = re.match(r'(?P<Hour>\d{1,2}):(?P<Minute>\d{1,2}):(?P<Second>\d{1,2})', recordStart).groupdict()
+            #recordStart_datetime = 
             os.chdir(r'{}'.format(srcAddress))
 
             imageNameList = [re.findall(r'^.+\.png|^.+\.jpg|^.+\.jpeg', imageName)[0] for imageName in os.listdir() if re.findall(r'^.+\.png|^.+\.jpg|^.+\.jpeg', imageName) != []]
@@ -187,7 +205,7 @@ class MainWinCtrl():
 
             for image in images[0:-1]:
                 images[images.index(image)] = image.crop(
-                    (0, 0, y_cord, self.SIZE[1]))
+                    (0, 0, yCord, self.SIZE[1]))
             #------------------------------------------------------------------------#
             # Merge
             widths, heights = zip(*(image.size for image in images))
@@ -200,6 +218,8 @@ class MainWinCtrl():
             for image in images:
                 self.canvas.paste(image, (x_offset, 30))
                 x_offset += image.size[0]
+                if x_offset % (self.PIX_PER_SEC * 1800) == 0:
+                    pass
 
             os.chdir(r'{}'.format(destAddress))
             self.canvas.save(f"{name}.png")
