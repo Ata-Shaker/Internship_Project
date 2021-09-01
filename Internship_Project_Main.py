@@ -1,8 +1,8 @@
 import sys
 from PySide6 import QtGui
-from PySide6.QtWidgets import QApplication, QComboBox, QDateTimeEdit, QDialogButtonBox, QGroupBox, QLabel, QMainWindow, QRadioButton
+from PySide6.QtWidgets import QApplication, QComboBox, QDateTimeEdit, QDialogButtonBox, QFormLayout, QGroupBox, QLabel, QMainWindow, QRadioButton, QTimeEdit
 from PySide6.QtWidgets import QGridLayout, QPushButton, QTabWidget, QVBoxLayout, QWidget, QLineEdit
-from PySide6.QtCore import QDate, QDateTime, Qt 
+from PySide6.QtCore import QDate, QDateTime, QTime, Qt 
 
 class MainWin(QMainWindow): 
     def __init__(self): 
@@ -17,21 +17,26 @@ class MainWin(QMainWindow):
         self.innerlayout_1 = QGridLayout() 
         self.innerlayout_1.setAlignment(Qt.AlignTop) 
         
-        #----------------------------Mutual Setup Start---------------------------#
+        #----------------------------Mutual Setup Start------------------------#
         self.addSourceWidgets() 
         self.addDestinationWidgets() 
         self.addFileWidgets() 
         self.general_Layout.addLayout(self.innerlayout_1)
-        #-----------------------------Mutual Setup End----------------------------#
+        #-----------------------------Mutual Setup End-------------------------#
 
         self.createTabsWidgets() #-----> Creating Tabs
 
         #----------------------------Merge Tab Start---------------------------#
         self.mergeTabMain_Layout = QVBoxLayout(parent=self.mergeTab)
-        self.addCalendarToMergeTab()
-        self.addIntervalOptionsToMergeTab()
+        self.addMergeCalendar()
+        self.addMergeIntervalOptions()
         self.mergeTab.setLayout(self.mergeTabMain_Layout)
         #-----------------------------Merge Tab End----------------------------#
+
+        #----------------------------Annotate Tab Start------------------------#
+        self.annotateTabMain_Layout = QVBoxLayout(self.annotateTab)
+        self.addAnnotateWidgets()
+        self.annotateTab.setLayout(self.annotateTabMain_Layout)
 
         self.closeButton = QDialogButtonBox(QDialogButtonBox.Close, parent = self)
         self.general_Layout.addWidget(self.closeButton)
@@ -86,7 +91,7 @@ class MainWin(QMainWindow):
         self.tabs.addTab(self.annotateTab, 'Annotate')
         self.general_Layout.addWidget(self.tabs)
 
-    def addCalendarToMergeTab(self):
+    def addMergeCalendar(self):
         self.mergeTab_Layout = QGridLayout()
         self.mergeTab_Layout.setAlignment(Qt.AlignTop)
         
@@ -104,7 +109,7 @@ class MainWin(QMainWindow):
         self.mergeTabMain_Layout.addLayout(self.mergeTab_Layout)
         #---------------------------Calendar End---------------------------------#
 
-    def addIntervalOptionsToMergeTab(self):
+    def addMergeIntervalOptions(self):
         #---------------------------Display Interval Start-----------------------#
         self.dateTimeDiplayInterval = QGroupBox(parent= self.mergeTab, title = 'Display Interval:')
         self.thirtyMin = QRadioButton(parent = self.dateTimeDiplayInterval, text = '&3&0 Minutes')
@@ -126,13 +131,36 @@ class MainWin(QMainWindow):
         self.mergeButton = QPushButton(parent = self.mergeTab, text = 'Merge')
         self.mergeTabMain_Layout.addWidget(self.mergeButton)
 
+    def addAnnotateWidgets(self):
+        self.annotateTab_Layout = QGridLayout()
+        self.annotateTab_Layout.setAlignment(Qt.AlignTop)
+        # self.annotateTab_Layout.setHorizontalSpacing(20)
 
-#aldjalskdaskld
-#alksdjaklsdjlaskd
+        #---------------------------Start Time Start-----------------------------#
+        self.startTime_Label = QLabel(parent = self.annotateTab, text = 'Start Time:')
+        self.annotateTab_Layout.addWidget(self.startTime_Label, 0, 0, 1, 1)
+
+        self.startTime = QTimeEdit(QTime.currentTime(), parent = self.annotateTab)
+        self.startTime.setDisplayFormat('HH:mm:ss')
+        self.startTime.setAlignment(Qt.AlignCenter)
+        self.annotateTab_Layout.addWidget(self.startTime, 0, 1, 1, 5)
+        #--------------------------Start Time End--------------------------------#
+
+        self.endTime_Label = QLabel(parent = self.annotateTab,  text = 'End Time:')
+        self.annotateTab_Layout.addWidget(self.endTime_Label, 1, 0, 1, 1)
+
+        self.endTime = QTimeEdit(QTime.currentTime(), parent = self.annotateTab)
+        self.endTime.setDisplayFormat('HH:mm:ss')
+        self.endTime.setAlignment(Qt.AlignCenter)
+        self.annotateTab_Layout.addWidget(self.endTime, 1, 1, 1, 4)
+
+        self.endTimeRadio = QRadioButton(parent = self.annotateTab)
+        self.annotateTab_Layout.addWidget(self.endTimeRadio, 1, 5, 1, 1, Qt.AlignRight)
+        
+
+        self.annotateTabMain_Layout.addLayout(self.annotateTab_Layout)
 
 
-
-    #     self.mergeTab.setLayout(self.mergeTab_Layout)
 
 def main():
     app = QApplication()
