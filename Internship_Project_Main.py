@@ -1,6 +1,6 @@
 import sys
 from PySide6 import QtGui
-from PySide6.QtWidgets import QApplication, QComboBox, QDateTimeEdit, QDialogButtonBox, QFormLayout, QGroupBox, QLabel, QMainWindow, QRadioButton, QTimeEdit
+from PySide6.QtWidgets import QApplication, QComboBox, QDateTimeEdit, QDialogButtonBox, QFormLayout, QGroupBox, QLabel, QMainWindow, QPlainTextEdit, QRadioButton, QTimeEdit
 from PySide6.QtWidgets import QGridLayout, QPushButton, QTabWidget, QVBoxLayout, QWidget, QLineEdit
 from PySide6.QtCore import QDate, QDateTime, QTime, Qt 
 
@@ -9,7 +9,7 @@ class MainWin(QMainWindow):
         super().__init__() 
  
         self.setWindowTitle('New Photo Editor') 
-        self.setFixedSize(360, 435) 
+        self.setFixedSize(350, 445) 
         self.centralWidget = QWidget(self) 
         self.setCentralWidget(self.centralWidget) 
  
@@ -134,29 +134,68 @@ class MainWin(QMainWindow):
     def addAnnotateWidgets(self):
         self.annotateTab_Layout = QGridLayout()
         self.annotateTab_Layout.setAlignment(Qt.AlignTop)
-        # self.annotateTab_Layout.setHorizontalSpacing(20)
 
         #---------------------------Start Time Start-----------------------------#
         self.startTime_Label = QLabel(parent = self.annotateTab, text = 'Start Time:')
         self.annotateTab_Layout.addWidget(self.startTime_Label, 0, 0, 1, 1)
 
-        self.startTime = QTimeEdit(QTime.currentTime(), parent = self.annotateTab)
+        # self.color_Label = QLabel(parent = self.annotateTab, text = 'Color:')
+        # self.annotateTab_Layout.addWidget(self.color_Label, 0, 5, 1, 1)
+
+        self.startTime = QTimeEdit(parent = self.annotateTab)
         self.startTime.setDisplayFormat('HH:mm:ss')
         self.startTime.setAlignment(Qt.AlignCenter)
-        self.annotateTab_Layout.addWidget(self.startTime, 0, 1, 1, 5)
+        self.annotateTab_Layout.addWidget(self.startTime, 0, 1, 1, 4)
+
+        self.color = QComboBox(parent = self.annotateTab)
+        self.color.addItems(['Blue', 'Red', 'Green', 'Black', 'White', 'Yellow'])
+        self.annotateTab_Layout.addWidget(self.color, 0, 5, 1, 1)
         #--------------------------Start Time End--------------------------------#
 
+        #---------------------------End Time Start-------------------------------#
         self.endTime_Label = QLabel(parent = self.annotateTab,  text = 'End Time:')
         self.annotateTab_Layout.addWidget(self.endTime_Label, 1, 0, 1, 1)
 
-        self.endTime = QTimeEdit(QTime.currentTime(), parent = self.annotateTab)
+        self.endTime = QTimeEdit(parent = self.annotateTab)
         self.endTime.setDisplayFormat('HH:mm:ss')
         self.endTime.setAlignment(Qt.AlignCenter)
         self.annotateTab_Layout.addWidget(self.endTime, 1, 1, 1, 4)
 
         self.endTimeRadio = QRadioButton(parent = self.annotateTab)
+        self.endTimeRadio.setChecked(True)
         self.annotateTab_Layout.addWidget(self.endTimeRadio, 1, 5, 1, 1, Qt.AlignRight)
-        
+        #--------------------------End Time End----------------------------------#
+
+        #---------------------------Time length Start----------------------------#
+        self.timeLength_Label = QLabel(self.annotateTab, text = 'Time Length:')
+        self.annotateTab_Layout.addWidget(self.timeLength_Label, 2, 0, 1, 1)
+
+        self.timeLength = QTimeEdit(parent = self.annotateTab)
+        self.timeLength.setDisplayFormat('HH:mm:ss')
+        self.timeLength.setAlignment(Qt.AlignCenter)
+        self.annotateTab_Layout.addWidget(self.timeLength, 2, 1, 1, 4)
+
+        self.timeLengthRadio = QRadioButton(parent=self.annotateTab)
+        self.annotateTab_Layout.addWidget(self.timeLengthRadio, 2, 5, 1, 1, Qt.AlignRight)
+        #---------------------------Time Length End------------------------------#
+
+        #-----------------------------Comment Start------------------------------#
+        # self.comment_Label = QLabel(parent = self.annotateTab, text = 'Comment:')
+        # self.annotateTab_Layout.addWidget(self.comment_Label, 3, 0, 1, 1)
+
+        self.comment = QPlainTextEdit(parent = self.annotateTab)
+        self.comment.setUndoRedoEnabled(True)
+        self.comment.setPlaceholderText('Enter Comment')
+        self.annotateTab_Layout.addWidget(self.comment, 4, 0, 1, 6)
+        #-----------------------------Comment End--------------------------------#
+
+        #-----------------------------Comment Start------------------------------# 
+        self.readButton = QPushButton(parent =self.annotateTab, text = '+Add')
+        self.annotateTab_Layout.addWidget(self.readButton, 5, 0, 1, 3)
+        self.annotateButton = QPushButton(parent = self.annotateTab,  text = 'Annotate')
+        self.annotateTab_Layout.addWidget(self.annotateButton, 5, 3, 1, 3)
+        #-----------------------------Comment End--------------------------------# 
+
 
         self.annotateTabMain_Layout.addLayout(self.annotateTab_Layout)
 
