@@ -1,8 +1,8 @@
 import sys
-from PySide6 import QtGui
-from PySide6.QtWidgets import QApplication, QComboBox, QDateTimeEdit, QDialogButtonBox, QFormLayout, QGroupBox, QLabel, QMainWindow, QPlainTextEdit, QRadioButton, QTimeEdit
+from PySide6.QtWidgets import QApplication, QComboBox, QDateTimeEdit, QDialogButtonBox, QGroupBox, QLabel, QMainWindow, QPlainTextEdit, QRadioButton, QTimeEdit
 from PySide6.QtWidgets import QGridLayout, QPushButton, QTabWidget, QVBoxLayout, QWidget, QLineEdit
-from PySide6.QtCore import QDate, QDateTime, QTime, Qt 
+from PySide6.QtCore import QDate, Qt 
+import Internship_Project_Ctrl
 
 class MainWin(QMainWindow): 
     def __init__(self): 
@@ -200,10 +200,10 @@ class MainWin(QMainWindow):
         self.annotateTabMain_Layout.addLayout(self.annotateTab_Layout)
 
 
-
 def main():
     app = QApplication()
     GUI = MainWin()
+    ctrl = Internship_Project_Ctrl.MainWinCtrl(GUI)
     GUI.show()
     sys.exit(app.exec())
         
