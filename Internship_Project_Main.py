@@ -1,5 +1,6 @@
 import sys
-from PySide6.QtWidgets import QApplication, QComboBox, QDateTimeEdit, QDialogButtonBox, QGroupBox, QLabel, QMainWindow, QPlainTextEdit, QRadioButton, QTimeEdit
+from PySide6 import QtGui
+from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox, QDateTimeEdit, QDialogButtonBox, QGroupBox, QLabel, QMainWindow, QPlainTextEdit, QRadioButton, QTimeEdit
 from PySide6.QtWidgets import QGridLayout, QPushButton, QTabWidget, QVBoxLayout, QWidget, QLineEdit
 from PySide6.QtCore import QDate, Qt 
 import Internship_Project_Ctrl
@@ -115,14 +116,14 @@ class MainWin(QMainWindow):
         self.thirtyMin = QRadioButton(parent = self.dateTimeDiplayInterval, text = '&3&0 Minutes')
         self.oneHour = QRadioButton(parent = self.dateTimeDiplayInterval, text = '&1 Hour')
         self.ninetyMin = QRadioButton(parent = self.dateTimeDiplayInterval, text = '&9&0 Minutes')
-        self.twoHour = QRadioButton(parent = self.dateTimeDiplayInterval, text = '&2 Hours')
+        self.twoHours = QRadioButton(parent = self.dateTimeDiplayInterval, text = '&2 Hours')
         self.thirtyMin.setChecked(True)
 
         self.dateTimeDiplayInterval_Layout = QVBoxLayout(self.dateTimeDiplayInterval)
         self.dateTimeDiplayInterval_Layout.addWidget(self.thirtyMin)
         self.dateTimeDiplayInterval_Layout.addWidget(self.oneHour)
         self.dateTimeDiplayInterval_Layout.addWidget(self.ninetyMin)
-        self.dateTimeDiplayInterval_Layout.addWidget(self.twoHour)
+        self.dateTimeDiplayInterval_Layout.addWidget(self.twoHours)
 
         self.dateTimeDiplayInterval.setLayout(self.dateTimeDiplayInterval_Layout)
         self.mergeTabMain_Layout.addWidget(self.dateTimeDiplayInterval)
@@ -152,41 +153,48 @@ class MainWin(QMainWindow):
         self.annotateTab_Layout.addWidget(self.color, 0, 5, 1, 1)
         #--------------------------Start Time End--------------------------------#
 
-        #---------------------------End Time Start-------------------------------#
-        self.endTime_Label = QLabel(parent = self.annotateTab,  text = 'End Time:')
-        self.annotateTab_Layout.addWidget(self.endTime_Label, 1, 0, 1, 1)
+        #---------------------------End Time or Time Length Start-------------------------------#
+        self.endTimeOrTimeLength_Label = QLabel(parent = self.annotateTab,  text = 'Finish Time:  ')
+        self.annotateTab_Layout.addWidget(self.endTimeOrTimeLength_Label, 1, 0, 1, 1)
 
-        self.endTime = QTimeEdit(parent = self.annotateTab)
-        self.endTime.setDisplayFormat('HH:mm:ss')
-        self.endTime.setAlignment(Qt.AlignCenter)
-        self.annotateTab_Layout.addWidget(self.endTime, 1, 1, 1, 4)
+        self.endTimeOrTimeLength = QTimeEdit(parent = self.annotateTab)
+        self.endTimeOrTimeLength.setDisplayFormat('HH:mm:ss')
+        self.endTimeOrTimeLength.setAlignment(Qt.AlignCenter)
+        self.annotateTab_Layout.addWidget(self.endTimeOrTimeLength, 1, 1, 1, 4)
 
-        self.endTimeRadio = QRadioButton(parent = self.annotateTab)
-        self.endTimeRadio.setChecked(True)
-        self.annotateTab_Layout.addWidget(self.endTimeRadio, 1, 5, 1, 1, Qt.AlignRight)
+        # self.endTimeRadio = QRadioButton(parent = self.annotateTab)
+        # self.endTimeRadio.setChecked(True)
+        # self.annotateTab_Layout.addWidget(self.endTimeRadio, 1, 5, 1, 1, Qt.AlignRight)
+        self.endTimeOrTimeLengthCheck = QCheckBox(parent = self.annotateTab, text = 'Finish Time/\nTime Length')
+        self.annotateTab_Layout.addWidget(self.endTimeOrTimeLengthCheck, 1, 5, 1, 1)
         #--------------------------End Time End----------------------------------#
 
-        #---------------------------Time length Start----------------------------#
-        self.timeLength_Label = QLabel(self.annotateTab, text = 'Time Length:')
-        self.annotateTab_Layout.addWidget(self.timeLength_Label, 2, 0, 1, 1)
+        #---------------------------Time length or Time Length Start----------------------------#
+        # self.timeLength_Label = QLabel(self.annotateTab, text = 'Time Length:')
+        # self.annotateTab_Layout.addWidget(self.timeLength_Label, 2, 0, 1, 1)
 
-        self.timeLength = QTimeEdit(parent = self.annotateTab)
-        self.timeLength.setDisplayFormat('HH:mm:ss')
-        self.timeLength.setAlignment(Qt.AlignCenter)
-        self.annotateTab_Layout.addWidget(self.timeLength, 2, 1, 1, 4)
+        # readOnlyPalette = QtGui.QPalette()
+        # readOnlyPalette.setColor(QtGui.QPalette.Text, Qt.darkGray)
 
-        self.timeLengthRadio = QRadioButton(parent=self.annotateTab)
-        self.annotateTab_Layout.addWidget(self.timeLengthRadio, 2, 5, 1, 1, Qt.AlignRight)
+        # self.timeLength = QTimeEdit(parent = self.annotateTab)
+        # self.timeLength.setDisplayFormat('HH:mm:ss')
+        # self.timeLength.setAlignment(Qt.AlignCenter)
+        # self.timeLength.setReadOnly(True)
+        # self.timeLength.setPalette(readOnlyPalette)
+        # self.annotateTab_Layout.addWidget(self.timeLength, 2, 1, 1, 4)
+
+        # self.timeLengthRadio = QRadioButton(parent=self.annotateTab)
+        # self.annotateTab_Layout.addWidget(self.timeLengthRadio, 2, 5, 1, 1, Qt.AlignRight)
         #---------------------------Time Length End------------------------------#
 
         #-----------------------------Comment Start------------------------------#
         # self.comment_Label = QLabel(parent = self.annotateTab, text = 'Comment:')
-        # self.annotateTab_Layout.addWidget(self.comment_Label, 3, 0, 1, 1)
+        # self.annotateTab_Layout.addWidget(self.comment_Label, 2, 0, 1, 1)
 
         self.comment = QPlainTextEdit(parent = self.annotateTab)
         self.comment.setUndoRedoEnabled(True)
         self.comment.setPlaceholderText('Enter Comment')
-        self.annotateTab_Layout.addWidget(self.comment, 4, 0, 1, 6)
+        self.annotateTab_Layout.addWidget(self.comment, 2, 0, 1, 6)
         #-----------------------------Comment End--------------------------------#
 
         #-----------------------------Comment Start------------------------------# 
