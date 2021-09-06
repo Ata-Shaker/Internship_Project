@@ -166,7 +166,7 @@ class MainWin(QMainWindow):
         # self.endTimeRadio.setChecked(True)
         # self.annotateTab_Layout.addWidget(self.endTimeRadio, 1, 5, 1, 1, Qt.AlignRight)
         self.endTimeOrTimeLengthCheck = QCheckBox(parent = self.annotateTab, text = 'Finish Time/\nTime Length')
-        self.annotateTab_Layout.addWidget(self.endTimeOrTimeLengthCheck, 1, 5, 1, 1)
+        self.annotateTab_Layout.addWidget(self.endTimeOrTimeLengthCheck, 1, 5, 1, 1, Qt.AlignRight)
         #--------------------------End Time End----------------------------------#
 
         #---------------------------Time length or Time Length Start----------------------------#

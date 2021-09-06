@@ -1,7 +1,7 @@
 import os, re
 from PySide6 import QtCore, QtGui
 from PySide6.QtWidgets import  QFileDialog, QGridLayout, QLabel, QLineEdit, QMessageBox, QDialog, QPushButton
-from PySide6.QtCore import QTime, Qt
+from PySide6.QtCore import SIGNAL, QTime, Qt, QObject
 from PIL import Image, ImageDraw, ImageFont
 from functools import partial
 from datetime import datetime, timedelta
@@ -27,6 +27,7 @@ class MainWinCtrl():
         
         #self._view.endTimeRadio.toggled.connect(self.radioEnableAndDisable)
         #self._view.timeLengthRadio.toggled.connect(self.radioEnableAndDisable)
+        #self._view.QObject.connect(self._view.comment, SIGNAL('t'))
         self._view.endTimeOrTimeLengthCheck.toggled.connect(self.checkMarkEnableAndDisable)
         self._view.annotateButton.clicked.connect(self.boxAndAnnotate)
         self._view.closeButton.clicked.connect(self._view.close)
