@@ -14,7 +14,7 @@ class MainWin(QMainWindow):
         self.centralWidget = QWidget(self) 
         self.setCentralWidget(self.centralWidget) 
  
-        self.general_Layout = QVBoxLayout(parent = self.centralWidget) 
+        self.general_Layout = QVBoxLayout(parent = self) 
         self.innerlayout_1 = QGridLayout() 
         self.innerlayout_1.setAlignment(Qt.AlignTop) 
         
@@ -41,6 +41,7 @@ class MainWin(QMainWindow):
 
         self.closeButton = QDialogButtonBox(QDialogButtonBox.Close, parent = self)
         self.general_Layout.addWidget(self.closeButton)
+
 
         self.centralWidget.setLayout(self.general_Layout)
 
@@ -191,7 +192,7 @@ class MainWin(QMainWindow):
         # self.comment_Label = QLabel(parent = self.annotateTab, text = 'Comment:')
         # self.annotateTab_Layout.addWidget(self.comment_Label, 2, 0, 1, 1)
 
-        self.comment = QPlainTextEdit(parent = self.annotateTab)
+        self.comment = Internship_Project_Ctrl.myPlainTextEdit(parent = self.annotateTab)
         self.comment.setUndoRedoEnabled(True)
         self.comment.setPlaceholderText('Enter Comment')
         self.annotateTab_Layout.addWidget(self.comment, 2, 0, 1, 6)
@@ -206,7 +207,7 @@ class MainWin(QMainWindow):
 
 
         self.annotateTabMain_Layout.addLayout(self.annotateTab_Layout)
-
+ 
 
 def main():
     app = QApplication()
