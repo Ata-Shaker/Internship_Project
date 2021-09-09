@@ -1,7 +1,7 @@
 import os, re, PySide6
 from PySide6 import QtCore, QtGui
 from PySide6.QtWidgets import  QFileDialog, QGridLayout, QLabel, QLineEdit, QMessageBox, QDialog, QPushButton, QPlainTextEdit
-from PySide6.QtCore import SIGNAL, QTime, Qt, Signal
+from PySide6.QtCore import QTime, Qt
 from PIL import Image, ImageDraw, ImageFont
 from functools import partial
 from datetime import datetime, timedelta
@@ -12,7 +12,7 @@ class myPlainTextEdit(QPlainTextEdit):
         super().__init__(parent)
     def keyPressEvent(self, e):
         if len(self.toPlainText()) < 100 and str(self.toPlainText()).count('\n') < 2 :
-            print(str(self.toPlainText()).count('\n'))
+            # print(str(self.toPlainText()).count('\n'))
             return super().keyPressEvent(e)
         else:
             if e.key() in [Qt.Key_Delete, Qt.Key_Backspace, Qt.Key_Up, Qt.Key_Down, Qt.Key_Left, Qt.Key_Right, 
@@ -38,7 +38,7 @@ class MainWinCtrl():
         #self._view.endTimeRadio.toggled.connect(self.radioEnableAndDisable)
         #self._view.timeLengthRadio.toggled.connect(self.radioEnableAndDisable)
         self._view.endTimeOrTimeLengthCheck.toggled.connect(self.checkMarkEnableAndDisable)
-        #self._view.comment.textChanged.connect(self.commentKeyPressEvent)
+        self._view.comment.textChanged.connect(self.countCharacter)
         self._view.annotateButton.clicked.connect(self.boxAndAnnotate)
         self._view.closeButton.clicked.connect(self._view.close)
 
@@ -256,6 +256,10 @@ class MainWinCtrl():
         else:
             self._view.endTimeOrTimeLength_Label.setText('Finish Time:  ')
             self._view.endTimeOrTimeLength.setTime(QTime(0,0,0))            
+
+    def countCharacter(self):
+        length = len(self._view.comment.toPlainText())
+        self._view.characterCount_Label.setText(f'{length}/100')
 
     def convertTimeToPix(self, times):
         time = re.match(r'(?P<Hour>\d{1,2}):(?P<Minute>\d{1,2}):(?P<Second>\d{1,2})', times).groupdict()

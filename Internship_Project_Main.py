@@ -10,7 +10,7 @@ class MainWin(QMainWindow):
         super().__init__() 
  
         self.setWindowTitle('New Photo Editor') 
-        self.setFixedSize(350, 445) 
+        self.setFixedSize(350, 460) 
         self.centralWidget = QWidget(self) 
         self.setCentralWidget(self.centralWidget) 
  
@@ -196,14 +196,17 @@ class MainWin(QMainWindow):
         self.comment.setUndoRedoEnabled(True)
         self.comment.setPlaceholderText('Enter Comment')
         self.annotateTab_Layout.addWidget(self.comment, 2, 0, 1, 6)
+
+        self.characterCount_Label = QLabel(parent = self.annotateTab, text = '0/100')
+        self.annotateTab_Layout.addWidget(self.characterCount_Label, 3, 5, 1, 1, Qt.AlignRight)
         #-----------------------------Comment End--------------------------------#
 
-        #-----------------------------Comment Start------------------------------# 
+        #-----------------------------Buttons Start------------------------------# 
         self.readButton = QPushButton(parent =self.annotateTab, text = '+Add')
-        self.annotateTab_Layout.addWidget(self.readButton, 5, 0, 1, 3)
+        self.annotateTab_Layout.addWidget(self.readButton, 4, 0, 1, 3)
         self.annotateButton = QPushButton(parent = self.annotateTab,  text = 'Annotate')
-        self.annotateTab_Layout.addWidget(self.annotateButton, 5, 3, 1, 3)
-        #-----------------------------Comment End--------------------------------# 
+        self.annotateTab_Layout.addWidget(self.annotateButton, 4, 3, 1, 3)
+        #-----------------------------Buttons End--------------------------------# 
 
 
         self.annotateTabMain_Layout.addLayout(self.annotateTab_Layout)
