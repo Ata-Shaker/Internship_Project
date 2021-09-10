@@ -28,7 +28,7 @@ class MainWin(QMainWindow):
         self.createTabsWidgets() #-----> Creating Tabs
 
         #----------------------------Merge Tab Start---------------------------#
-        self.mergeTabMain_Layout = QVBoxLayout(parent=self.mergeTab)
+        self.mergeTabMain_Layout = QGridLayout(parent=self.mergeTab)
         self.addMergeCalendar()
         self.addMergeIntervalOptions()
         self.mergeTab.setLayout(self.mergeTabMain_Layout)
@@ -108,16 +108,16 @@ class MainWin(QMainWindow):
         self.recordStartTime.setDisplayFormat('yyyy/MM/dd HH:mm')
         self.recordStartTime.setAlignment(Qt.AlignCenter)
         self.mergeTab_Layout.addWidget(self.recordStartTime)
-        self.mergeTabMain_Layout.addLayout(self.mergeTab_Layout)
+        self.mergeTabMain_Layout.addLayout(self.mergeTab_Layout, 0, 0, 1, 6)
         #---------------------------Calendar End---------------------------------#
 
     def addMergeIntervalOptions(self):
         #---------------------------Display Interval Start-----------------------#
         self.dateTimeDiplayInterval = QGroupBox(parent= self.mergeTab, title = 'Display Interval:')
-        self.thirtyMin = QRadioButton(parent = self.dateTimeDiplayInterval, text = '&3&0 Minutes')
-        self.oneHour = QRadioButton(parent = self.dateTimeDiplayInterval, text = '&1 Hour')
-        self.ninetyMin = QRadioButton(parent = self.dateTimeDiplayInterval, text = '&9&0 Minutes')
-        self.twoHours = QRadioButton(parent = self.dateTimeDiplayInterval, text = '&2 Hours')
+        self.thirtyMin = QRadioButton(parent = self.dateTimeDiplayInterval, text = '30 Minutes')
+        self.oneHour = QRadioButton(parent = self.dateTimeDiplayInterval, text = '1 Hour')
+        self.ninetyMin = QRadioButton(parent = self.dateTimeDiplayInterval, text = '90 Minutes')
+        self.twoHours = QRadioButton(parent = self.dateTimeDiplayInterval, text = '2 Hours')
         self.thirtyMin.setChecked(True)
 
         self.dateTimeDiplayInterval_Layout = QVBoxLayout(self.dateTimeDiplayInterval)
@@ -127,11 +127,12 @@ class MainWin(QMainWindow):
         self.dateTimeDiplayInterval_Layout.addWidget(self.twoHours)
 
         self.dateTimeDiplayInterval.setLayout(self.dateTimeDiplayInterval_Layout)
-        self.mergeTabMain_Layout.addWidget(self.dateTimeDiplayInterval)
+        self.mergeTabMain_Layout.addWidget(self.dateTimeDiplayInterval, 1, 0, 1, 6)
         #---------------------------Display Interval End-------------------------#
         
         self.mergeButton = QPushButton(parent = self.mergeTab, text = 'Merge')
-        self.mergeTabMain_Layout.addWidget(self.mergeButton)
+        self.mergeTabMain_Layout.addWidget(self.mergeButton, 2, 0, 1, 6)
+
 
     def addAnnotateWidgets(self):
         self.annotateTab_Layout = QGridLayout()

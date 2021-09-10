@@ -1,5 +1,5 @@
 import os, re, PySide6
-from PySide6 import QtCore, QtGui
+from PySide6 import QtCore, QtGui 
 from PySide6.QtWidgets import  QFileDialog, QGridLayout, QLabel, QLineEdit, QMessageBox, QDialog, QPushButton, QPlainTextEdit
 from PySide6.QtCore import QTime, Qt
 from PIL import Image, ImageDraw, ImageFont
@@ -11,7 +11,7 @@ class myPlainTextEdit(QPlainTextEdit):
     def __init__(self, parent):
         super().__init__(parent)
     def keyPressEvent(self, e):
-        if len(self.toPlainText()) < 100 and str(self.toPlainText()).count('\n') < 2 :
+        if len(self.toPlainText()) < 100 and str(self.toPlainText()).count('\n') < 3 :
             # print(str(self.toPlainText()).count('\n'))
             return super().keyPressEvent(e)
         else:
@@ -27,7 +27,7 @@ class MainWinCtrl():
         self.SIZE = None
         self.COLORS = {"black": (0, 0, 0), "white": (255, 255, 255), "blue": (0, 0, 255), 
                     "red": (255, 0, 0), "green": (0, 255, 0), "yellow": (255, 255, 0)}
-        self.text_font = ImageFont.truetype(r'‪C:\Windows\Fonts\arial.ttf', size=11) # --> May able to use QFonts. 
+        self.text_font = ImageFont.truetype(r'‪C:\Windows\Fonts\arial.ttf', size = 12) # --> May able to use QFonts. 
         self.connectSignals()
 
     def connectSignals(self):
@@ -98,7 +98,6 @@ class MainWinCtrl():
         if self.blackBoxYCoordinate == None and self.imageLength == None:
             self.dialog()
         #------------------------Getting PixPerSec End---------------------------#
-
         for image in self.images[0:-1]:
             self.images[self.images.index(image)] = image.crop(
                 (0, 0, self.blackBoxYCoordinate, self.SIZE[1]))
@@ -108,7 +107,7 @@ class MainWinCtrl():
         self.total_width = self.getImageDimensions()[0]
         self.max_height = self.getImageDimensions()[1]
         self.canvas = Image.new("RGB", size=(
-            self.total_width, self.max_height + 80), color=(255, 255, 255))
+            self.total_width, self.max_height + 90), color=(255, 255, 255))
         
         xOffset = 0
         for image in self.images:
@@ -172,13 +171,13 @@ class MainWinCtrl():
                 if startPix > self.image.size[0] or endPix > self.image.size[0]:
                     QMessageBox.critical(None, 'Time Paradox', 'Start Time and End Time must be within the limits.')
                 else:
-                    frame = (startPix, 30, endPix, self.image.size[1] - 50)
+                    frame = (startPix, 30, endPix, self.image.size[1] - 60)
                     # Box
                     draw = ImageDraw.Draw(self.image)
-                    draw.rectangle(frame, outline = self.COLORS[color], width=3)
+                    draw.rectangle(frame, outline = self.COLORS[color], width=2)
                     #Annotate
                     if comment != '':
-                        draw.text((startPix, self.image.size[1] - 40), comment, color, self.text_font)
+                        draw.text((startPix, self.image.size[1] - 50), comment, color, self.text_font)
                         
                     self.image.save(f"{fileName}.{fileType}")
                     self._view.startTime.setTime(QTime(0, 0, 0))
