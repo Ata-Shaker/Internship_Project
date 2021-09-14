@@ -1,4 +1,5 @@
 import os, re, PySide6
+import pandas as pd
 from PySide6 import QtCore, QtGui 
 from PySide6.QtWidgets import  QFileDialog, QGridLayout, QLabel, QLineEdit, QMessageBox, QDialog, QPushButton, QPlainTextEdit
 from PySide6.QtCore import QTime, Qt
@@ -6,6 +7,8 @@ from PIL import Image, ImageDraw, ImageFont
 from functools import partial
 from datetime import datetime, timedelta
 from numpy import round
+from pandas.core.frame import DataFrame
+
 
 class myPlainTextEdit(QPlainTextEdit):
     def __init__(self, parent):
@@ -39,14 +42,15 @@ class MainWinCtrl():
         #self._view.timeLengthRadio.toggled.connect(self.radioEnableAndDisable)
         self._view.endTimeOrTimeLengthCheck.toggled.connect(self.checkMarkEnableAndDisable)
         self._view.comment.textChanged.connect(self.countCharacter)
+        self._view.addButton.clicked.connect(self.addCSVFile)
         self._view.annotateButton.clicked.connect(self.boxAndAnnotate)
         self._view.closeButton.clicked.connect(self._view.close)
 
-    def browse(self, Display):
+    def browse(self, browseType):
         self.folderName = QFileDialog.getExistingDirectory(self._view, 'Select a Directory', QtCore.QDir.rootPath())
-        if Display == 'source':
+        if browseType == 'source':
             self._view.sourceDisplay.setText(self.folderName)
-        elif Display == 'display':
+        elif browseType == 'display':
             self._view.destinationDisplay.setText(self.folderName)
 
     def cropAndMerge(self):
@@ -259,6 +263,46 @@ class MainWinCtrl():
     def countCharacter(self):
         length = len(self._view.comment.toPlainText())
         self._view.characterCount_Label.setText(f'{length}/100')
+
+    def addCSVFile(self):
+        self.CSVFileAddress = QFileDialog.getOpenFileName(self._view, 'Open CSV File', QtCore.QDir.rootPath(), 'CSV Files (*.csv, *.txt)')
+        if self.CSVFileAddress == '':
+            return None
+        try:
+            self.dataframe = pd.read_csv(r'{}'.format(self.CSVFileAddress))
+        except:
+            QMessageBox.critical( None, 'Unable to Read the File!', 'Please Verify the Selected File Meets the Specified Criteria.')
+
+        self.validatedDataframe =  self.dataFrame.apply(lambda row: self.validateCSVFile(row), axis = 1)
+
+    def validateCSVFile(self, row):
+        try:
+            datetime.strptime(row['Start Time'], '%H:%M:%S')
+            datetime.strptime(row['End Time(True)/Time Length(False)'], '%H:%M:%S')
+        except:
+            row['Validity'] = False
+
+        if row['Bool'] and row['Validity']:
+            if (datetime.strptime(row['Start Time'], '%H:%M:%S') > datetime.strptime(row['End Time(True)/Time Length(False)'], '%H:%M:%S')):
+                row['Validity'] = False 
+        return row
+
+    def annotateWithCSV(self):
+        if self.blackBoxYCoordinate == None and self.imageLength == None:
+            self.dialog()
+
+        for index , row in self.validatedDataframe:
+            if row['Validity']:
+                startPix = self.convertTimeToPix(row['Start Time'])
+                endTimeOrTimeLength = self.convertTimeToPix(row['End Time(True)/Time Length(False)'])
+                
+                if row['Bool']:
+                    endPix = endTimeOrTimeLength
+                else:
+                    endPix = startPix + endTimeOrTimeLength
+
+            else:
+                pass
 
     def convertTimeToPix(self, times):
         time = re.match(r'(?P<Hour>\d{1,2}):(?P<Minute>\d{1,2}):(?P<Second>\d{1,2})', times).groupdict()

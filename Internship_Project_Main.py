@@ -203,8 +203,8 @@ class MainWin(QMainWindow):
         #-----------------------------Comment End--------------------------------#
 
         #-----------------------------Buttons Start------------------------------# 
-        self.readButton = QPushButton(parent =self.annotateTab, text = '+Add')
-        self.annotateTab_Layout.addWidget(self.readButton, 4, 0, 1, 3)
+        self.addButton = QPushButton(parent =self.annotateTab, text = '+Add')
+        self.annotateTab_Layout.addWidget(self.addButton, 4, 0, 1, 3)
         self.annotateButton = QPushButton(parent = self.annotateTab,  text = 'Annotate')
         self.annotateTab_Layout.addWidget(self.annotateButton, 4, 3, 1, 3)
         #-----------------------------Buttons End--------------------------------# 
