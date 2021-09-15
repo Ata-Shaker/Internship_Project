@@ -133,7 +133,6 @@ class MainWin(QMainWindow):
         self.mergeButton = QPushButton(parent = self.mergeTab, text = 'Merge')
         self.mergeTabMain_Layout.addWidget(self.mergeButton, 2, 0, 1, 6)
 
-
     def addAnnotateWidgets(self):
         self.annotateTab_Layout = QGridLayout()
         self.annotateTab_Layout.setAlignment(Qt.AlignTop)

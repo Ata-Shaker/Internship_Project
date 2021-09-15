@@ -42,7 +42,7 @@ class MainWinCtrl():
         #self._view.timeLengthRadio.toggled.connect(self.radioEnableAndDisable)
         self._view.endTimeOrTimeLengthCheck.toggled.connect(self.checkMarkEnableAndDisable)
         self._view.comment.textChanged.connect(self.countCharacter)
-        self._view.addButton.clicked.connect(self.addCSVFile)
+        self._view.addButton.clicked.connect(self.handleCSVFile)
         self._view.annotateButton.clicked.connect(self.boxAndAnnotate)
         self._view.closeButton.clicked.connect(self._view.close)
 
@@ -166,11 +166,8 @@ class MainWinCtrl():
             else:
                 #Starting 
                 startPix = self.convertTimeToPix(startTime) 
-                if not(self._view.endTimeOrTimeLengthCheck.isChecked()):
-                    endPix =  self.convertTimeToPix(endTimeOrTimeLength)
-                else:
-                    timeLengthPix = self.convertTimeToPix(endTimeOrTimeLength)
-                    endPix = startPix + timeLengthPix
+                endPixOrPixLength = self.convertTimeToPix(endTimeOrTimeLength)
+                endPix = self.getEndPix(startPix, endPixOrPixLength, not(self._view.endTimeOrTimeLengthCheck.isChecked()))
 
                 if startPix > self.image.size[0] or endPix > self.image.size[0]:
                     QMessageBox.critical(None, 'Time Paradox', 'Start Time and End Time must be within the limits.')
@@ -178,7 +175,7 @@ class MainWinCtrl():
                     frame = (startPix, 30, endPix, self.image.size[1] - 60)
                     # Box
                     draw = ImageDraw.Draw(self.image)
-                    draw.rectangle(frame, outline = self.COLORS[color], width=2)
+                    draw.rectangle(frame, outline = color, width=2)
                     #Annotate
                     if comment != '':
                         draw.text((startPix, self.image.size[1] - 50), comment, color, self.text_font)
@@ -194,7 +191,7 @@ class MainWinCtrl():
         self.dialog.setWindowTitle('More Information Needed!')
         self.dialog_Layout = QGridLayout(parent = self.dialog)
         
-        self.blackBoxYCoordinate_Label = QLabel(parent = self.dialog, text = 'The Y-Coordinate of Black Box: (Pixels)')
+        self.blackBoxYCoordinate_Label = QLabel(parent = self.dialog, text = 'The Crop Coordinate: (Pixels)')
         self.dialog_Layout.addWidget(self.blackBoxYCoordinate_Label, 0, 0, 1, 1)
 
         self.blackBoxYCoordinateEdit = QLineEdit(parent = self.dialog)
@@ -264,16 +261,25 @@ class MainWinCtrl():
         length = len(self._view.comment.toPlainText())
         self._view.characterCount_Label.setText(f'{length}/100')
 
-    def addCSVFile(self):
-        self.CSVFileAddress = QFileDialog.getOpenFileName(self._view, 'Open CSV File', QtCore.QDir.rootPath(), 'CSV Files (*.csv, *.txt)')
-        if self.CSVFileAddress == '':
+    def handleCSVFile(self):
+        '''ERRORS AND DIALOG'''
+        if self._view.destinationDisplay.text() == '':
+            QMessageBox.critical( None, 'Destination Path Missing', 'Please enter a Destination Path.')
             return None
-        try:
-            self.dataframe = pd.read_csv(r'{}'.format(self.CSVFileAddress))
-        except:
-            QMessageBox.critical( None, 'Unable to Read the File!', 'Please Verify the Selected File Meets the Specified Criteria.')
 
-        self.validatedDataframe =  self.dataFrame.apply(lambda row: self.validateCSVFile(row), axis = 1)
+        if self.blackBoxYCoordinate == None and self.imageLength == None:
+            self.dialog()
+
+        self.CSVFileAddress = QFileDialog.getOpenFileName(self._view, 'Open CSV File', QtCore.QDir.rootPath(), 'CSV Files (*.csv, *.txt)')
+        try:
+            self.dataframe = pd.read_csv(r'{}'.format(self.CSVFileAddress[0]))
+            self.dataframe['Validity'] = True
+        except:
+            QMessageBox.critical( None, 'Unable to Open the File!', 'Please verify the selected file meets the specified criteria.')
+            return None
+
+        self.validatedDataframe = self.dataframe.apply(lambda x: self.validateCSVFile(x), axis = 1)
+        self.annotateWithCSV()
 
     def validateCSVFile(self, row):
         try:
@@ -288,21 +294,63 @@ class MainWinCtrl():
         return row
 
     def annotateWithCSV(self):
-        if self.blackBoxYCoordinate == None and self.imageLength == None:
-            self.dialog()
+        fileName = self._view.fileName.displayText()
+        fileType = str(self._view.fileType.currentText()).lower()
+        destinationAddress = self._view.destinationDisplay.text()
+        os.chdir(r'{}'.format(destinationAddress))
+        
+        try:
+            self.image  = Image.open(f'{fileName}.{fileType}')
+        except:
+            QMessageBox.critical(None, 'File Non-Existant', 'Make sure the File Name and File Type you provided are valid.')
+            return None
+        
+        draw = ImageDraw.Draw(self.image)
+        invalidRowsList = []
 
-        for index , row in self.validatedDataframe:
+        for index , row in self.validatedDataframe.iterrows():
             if row['Validity']:
                 startPix = self.convertTimeToPix(row['Start Time'])
-                endTimeOrTimeLength = self.convertTimeToPix(row['End Time(True)/Time Length(False)'])
+                endPixOrPixLength = self.convertTimeToPix(row['End Time(True)/Time Length(False)'])                
+                endPix = self.getEndPix(startPix, endPixOrPixLength, row['Bool'])
                 
-                if row['Bool']:
-                    endPix = endTimeOrTimeLength
+                frame = (startPix, 30, endPix, self.image.size[1] - 60)
+                color = str(row['Color']).lower()
+                
+                if color in list(self.COLORS.keys()):
+                    draw.rectangle(frame, outline = color, width=2)
+                    if row['Comment'] != '' and not(pd.isna(row['Comment'])):
+                        draw.text((startPix, self.image.size[1] - 50), row['Comment'], color, self.text_font)
                 else:
-                    endPix = startPix + endTimeOrTimeLength
-
+                    draw.rectangle(frame, outline = 'blue', width=2)
+                    if row['Comment'] != '' and not(pd.isna(row['Comment'])):
+                        draw.text((startPix, self.image.size[1] - 50), row['Comment'], 'blue', self.text_font)
             else:
-                pass
+                invalidRowsList.append(row['Row'])
+            
+        self.getWarningText(invalidRowsList)   
+        self.image.save(f"{fileName}.{fileType}")
+        QMessageBox.information(None, 'Info', 'Done!')
+
+
+    def getEndPix(self, startPix, endPixOrPixLength, boolVal):
+        if boolVal:
+            return endPixOrPixLength
+        else:
+            return startPix + endPixOrPixLength
+    
+    def getWarningText(self, invalidRowsList): 
+        if invalidRowsList != []:
+            invalidRowsText = ''
+            for rowIndex in invalidRowsList:
+                if rowIndex != invalidRowsList[-1]:
+                    invalidRowsText += ('\t'+ f'--{rowIndex}' + '\n')
+                else:
+                    invalidRowsText += ('\t' + f'--{rowIndex}')
+            warningText_1 = 'The following rows could not be add because of an error:'
+            warningText_2 = 'Please check the entries of these rows and Try Again.'
+            warningText_Final = warningText_1 + invalidRowsText + warningText_2 
+            QMessageBox.warning(None, 'Warning!', warningText_Final)
 
     def convertTimeToPix(self, times):
         time = re.match(r'(?P<Hour>\d{1,2}):(?P<Minute>\d{1,2}):(?P<Second>\d{1,2})', times).groupdict()
