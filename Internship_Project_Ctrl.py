@@ -1,10 +1,10 @@
 from Internship_Project_Dialog import myDialog, myDialogCtrl
-import os, re, PySide6
+import os, re
 import pandas as pd
 from PySide6 import QtCore, QtGui 
 from PySide6.QtWidgets import  QFileDialog, QMessageBox
 from PySide6.QtCore import QTime, Qt
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageColor
 from functools import partial
 from datetime import datetime, timedelta
 from numpy import round
@@ -15,11 +15,12 @@ class MainWinCtrl():
         self._view = view
         self.dialog = myDialog(self._view)
         self.dialogCtrl = myDialogCtrl(self.dialog)
-        self.blackBoxYCoordinate = None
+        self.cropCoordinate = None
         self.imageLength = None
         self.SIZE = (None, None)
-        self.COLORS = {"black": (0, 0, 0), "white": (255, 255, 255), "blue": (0, 0, 255), 
-                    "red": (255, 0, 0), "green": (0, 255, 0), "yellow": (255, 255, 0)}
+        self.COLORS = ImageColor.colormap
+        # {"black": (0, 0, 0), "white": (255, 255, 255), "blue": (0, 0, 255), 
+        # "red": (255, 0, 0), "green": (0, 255, 0), "yellow": (255, 255, 0)}
         self.text_font = ImageFont.truetype(r'‪C:\Windows\Fonts\arial.ttf', size = 12) # --> May able to use QFonts. 
         self.connectSignals()
 
@@ -27,14 +28,13 @@ class MainWinCtrl():
         self._view.sourceBrowseButton.clicked.connect(partial(self.browse, 'source'))
         self._view.destinationBrowseButton.clicked.connect(partial(self.browse, 'display'))
         self._view.mergeButton.clicked.connect(self.cropAndMerge)
-        
-        #self._view.endTimeRadio.toggled.connect(self.radioEnableAndDisable)
-        #self._view.timeLengthRadio.toggled.connect(self.radioEnableAndDisable)
         self._view.endTimeOrTimeLengthCheck.toggled.connect(self.checkMarkEnableAndDisable)
         self._view.comment.textChanged.connect(self.countCharacter)
         self._view.addButton.clicked.connect(self.handleCSVFile)
         self._view.annotateButton.clicked.connect(self.boxAndAnnotate)
         self._view.closeButton.clicked.connect(self._view.close)
+        # self._view.endTimeRadio.toggled.connect(self.radioEnableAndDisable) --> Connection to an unused functions 
+        # self._view.timeLengthRadio.toggled.connect(self.radioEnableAndDisable) --> Connection to an unused functions 
 
     def browse(self, browseType):
         self.folderName = QFileDialog.getExistingDirectory(self._view, 'Select a Directory', QtCore.QDir.rootPath())
@@ -84,11 +84,11 @@ class MainWinCtrl():
 
         #------------------------Getting PixPerSec Start---------------------------#
         self.SIZE = (self.getImageDimensions()[0]/len(self.images), self.getImageDimensions()[1]) 
-        if self.blackBoxYCoordinate == None and self.imageLength == None:
+        if self.cropCoordinate == None and self.imageLength == None:
             self.dialog.exec()
             #---------Checking Whether the Crop Coordinate in in Range Start-------#
-            if self.dialogCtrl.blackBoxYCoordinate <= self.SIZE[0]:
-                self.blackBoxYCoordinate = self.dialogCtrl.blackBoxYCoordinate
+            if self.dialogCtrl.cropCoordinate <= self.SIZE[0]:
+                self.cropCoordinate = self.dialogCtrl.cropCoordinate
                 self.imageLength = self.dialogCtrl.imageLength
             else:
                 QMessageBox.critical(None, 'Crop Coordinate Out of Range!', f'Crop Coordinate must be less than {self.SIZE[0]}.')
@@ -97,7 +97,7 @@ class MainWinCtrl():
 
         for image in self.images[0:-1]:
             self.images[self.images.index(image)] = image.crop(
-                (0, 0, self.blackBoxYCoordinate, self.SIZE[1]))
+                (0, 0, self.cropCoordinate, self.SIZE[1]))
 
         #-------------------------------------Merge Start-----------------------------------------#
         self.total_width = self.getImageDimensions()[0]
@@ -129,9 +129,9 @@ class MainWinCtrl():
 
     def boxAndAnnotate(self):
         #------------------------Getting PixPerSec Start---------------------------#
-        if self.blackBoxYCoordinate == None and self.imageLength == None:
+        if self.cropCoordinate == None and self.imageLength == None:
             self.dialog.exec()
-            self.blackBoxYCoordinate = self.dialogCtrl.blackBoxYCoordinate
+            self.cropCoordinate = self.dialogCtrl.cropCoordinate
             self.imageLength = self.dialogCtrl.imageLength
 
         #---------------------------Error Handling Start---------------------------#
@@ -194,10 +194,10 @@ class MainWinCtrl():
             self.showDoneMessage()
 
     def checkMarkEnableAndDisable(self):
-        if self._view.endTimeOrTimeLengthCheck.isChecked():
+        if self._view.endTimeOrTimeLengthCheck.isChecked(): # If the cechkbox is CHECKED the QlineEdit will accept Length
             self._view.endTimeOrTimeLength_Label.setText('Time Length:')
             self._view.endTimeOrTimeLength.setTime(QTime(0, 0, 0))
-        else:
+        else: # If the cechkbox is UNCHECKED the QlineEdit will accept Length
             self._view.endTimeOrTimeLength_Label.setText('Finish Time:  ')
             self._view.endTimeOrTimeLength.setTime(QTime(0, 0, 0))            
 
@@ -207,19 +207,20 @@ class MainWinCtrl():
             QMessageBox.critical( None, 'Destination Path Missing', 'Please enter a Destination Path.')
             return None
 
-        if self.blackBoxYCoordinate == None and self.imageLength == None:
+        if self.cropCoordinate == None and self.imageLength == None:
             self.dialog.exec()
-            self.blackBoxYCoordinate = self.dialogCtrl.blackBoxYCoordinate
+            self.cropCoordinate = self.dialogCtrl.cropCoordinate
             self.imageLength = self.dialogCtrl.imageLength
 
         self.CSVFileAddress = QFileDialog.getOpenFileName(self._view, 'Open CSV File', QtCore.QDir.rootPath(), 'CSV Files (*.csv *.txt)')
         try:
             self.dataframe = pd.read_csv(r'{}'.format(self.CSVFileAddress[0]))
-            self.dataframe['Validity'] = True
+            self.dataframe['Validity'] = True # Adds another column named Validity 
         except:
             QMessageBox.critical( None, 'Unable to Open the File!', 'Please verify the selected file meets the specified criteria.')
             return None
-    
+
+        #-----"What if the dataframe's columns are uncorresponding" Error Start----#
         if (set(self.dataframe.columns) != {'Row', 'Start Time', 'End Time(True)/Time Length(False)', 'Bool', 'Comment', 'Color', 'Validity'}
         and set(self.dataframe.columns) != {'Row', 'Start Time', 'End Time(1)/Time Length(0)', 'Bool', 'Comment', 'Color', 'Validity'}):
             text = 'The file must contain the following column labels:\n1) Row\n2) Start Time\n3) End Time(True)/Time Length(False)\n4) Bool\n5) Comment\n6) Color'
@@ -227,34 +228,42 @@ class MainWinCtrl():
             criticalMessage.exec()
             return None
         
+        #------------------------Opening the Image Start---------------------------#
         self.fileName = self._view.fileName.displayText()
         self.fileType = str(self._view.fileType.currentText()).lower()
         destinationAddress = self._view.destinationDisplay.text()
         os.chdir(r'{}'.format(destinationAddress))
-        
         try:
             self.image  = Image.open(f'{self.fileName}.{self.fileType}')
         except:
             QMessageBox.critical(None, 'File Non-Existant', 'Make sure the File Name and File Type you provided are valid.')
             return None
         
+        #-------------------------Calling Validate Function------------------------#
         self.validatedDataframe = self.dataframe.apply(lambda x: self.validateCSVFile(x), axis = 1)
+        # The validateCSVFile function is not called independently rather it is applied to the dataframe
+        
         self.annotateWithCSV()
 
     def validateCSVFile(self, row):
+        #-----------------------------Time Format Invalid--------------------------#   
         try:
             datetime.strptime(row['Start Time'], '%H:%M:%S')
             datetime.strptime(row['End Time(True)/Time Length(False)'], '%H:%M:%S')
         except:
             row['Validity'] = False
-        
-        if type(row['Bool']) == str and row['Bool'].lower() not in ('true', 'false' 't', 'f', '1', '0' 'yes' 'no'):
+    
+        #---------------------Keyword Uncorrespondence invalidity------------------#  
+        if ((type(row['Bool']) == str and row['Bool'].lower() not in ['true', 'false' 't', 'f', '1', '0' 'yes' 'no']) 
+            or (type(row['Bool']) and row['Bool'] not in [0, 1])):
                row['Validity'] = False
 
+        #--------------------------Time Paradox Invalidity-------------------------#
         if row['Validity'] and row['Bool']:
             if (datetime.strptime(row['Start Time'], '%H:%M:%S') > datetime.strptime(row['End Time(True)/Time Length(False)'], '%H:%M:%S')):
                 row['Validity'] = False 
 
+        #------------------------Time Out of Range Invalidity----------------------#
         if row['Validity']:
             if self.convertTimeToPix(row['Start Time']) > self.image.size[0]:
                 row['Validity'] = False
@@ -267,6 +276,7 @@ class MainWinCtrl():
         draw = ImageDraw.Draw(self.image)
         invalidRowsList = []
 
+        #-------------------------Pixel Data Initialization------------------------#
         for index , row in self.validatedDataframe.iterrows():
             if row['Validity']:
                 startPix = self.convertTimeToPix(row['Start Time'])
@@ -275,7 +285,8 @@ class MainWinCtrl():
                 
                 frame = (startPix, 30, endPix, self.image.size[1] - 60)
                 color = str(row['Color']).lower()
-                
+
+                #----Setting an alternative way in case the Color is not valid-----#
                 if color in list(self.COLORS.keys()):
                     draw.rectangle(frame, outline = color, width=2)
                     if row['Comment'] != '' and not(pd.isna(row['Comment'])):
@@ -286,7 +297,8 @@ class MainWinCtrl():
                         draw.text((startPix, self.image.size[1] - 50), row['Comment'], 'blue', self.text_font)
             else:
                 invalidRowsList.append(row['Row'])
-            
+        
+        #-----------Saving the Image and Displaying the Warning message------------#
         self.getWarningText(invalidRowsList)   
         self.image.save(f"{self.fileName}.{self.fileType}")
         self.showDoneMessage()
@@ -319,7 +331,7 @@ class MainWinCtrl():
         return round(seconds * self.getPixPerSec())  # May not need the round function
 
     def getPixPerSec(self):
-        return self.blackBoxYCoordinate/self.imageLength
+        return self.cropCoordinate/self.imageLength
 
     def getIntervalLength(self):
         if self._view.thirtyMin.isChecked():
@@ -344,7 +356,19 @@ class MainWinCtrl():
     def showDoneMessage(self):
         messageBox = QMessageBox(QMessageBox.Information, 'Info', 'Mission Accomplished!')
         messageBox.exec()
-            
+    
+    def convertToBool(self, expression):
+        if type(expression) == int:
+            if expression == 1:
+                return True
+            elif expression == 0:
+                return False
+        else:
+            if str(expression).lower() in ('true', 'yes', 't', '1'):
+                return True
+            elif str(expression).lower() in ('false', 'no', 'f', '0'):
+                return False
+
     #----------------------------Unused Function Start-----------------------------# 
     def radioEnableAndDisable(self):
         readOnlyPalette = QtGui.QPalette()

@@ -1,7 +1,8 @@
-from Internship_Project_Ctrl import MainWinCtrl
+from Internship_Project_Ctrl import MainWinCtrl 
 from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox, QDateTimeEdit, QDialogButtonBox, QGroupBox, QLabel, QMainWindow, QRadioButton, QTimeEdit
 from PySide6.QtWidgets import QGridLayout, QPushButton, QTabWidget, QVBoxLayout, QWidget, QLineEdit, QPlainTextEdit
 from PySide6.QtCore import QDate, Qt 
+from PIL import ImageColor
 import sys
 
 
@@ -176,7 +177,7 @@ class MainWin(QMainWindow):
 
         #-----------------------------Color Start----------------------------------#
         self.color = QComboBox(parent = self.annotateTab)
-        self.color.addItems(['Blue', 'Red', 'Green', 'Black', 'White', 'Yellow'])
+        self.color.addItems(list(ImageColor.colormap.keys()))
         self.annotateTab_Layout.addWidget(self.color, 0, 4, 1, 2)
         
         #---------------------------End Time or Time Length Start------------------#
