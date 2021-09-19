@@ -246,20 +246,20 @@ class MainWinCtrl():
         self.annotateWithCSV()
 
     def validateCSVFile(self, row):
-        #-----------------------------Time Format Invalid--------------------------#   
+        #-----------------------------Time Format Invalidity-----------------------#
         try:
             datetime.strptime(row['Start Time'], '%H:%M:%S')
             datetime.strptime(row['End Time(True)/Time Length(False)'], '%H:%M:%S')
         except:
             row['Validity'] = False
     
-        #---------------------Keyword Uncorrespondence invalidity------------------#  
-        if ((type(row['Bool']) == str and row['Bool'].lower() not in ['true', 'false' 't', 'f', '1', '0' 'yes' 'no']) 
-            or (type(row['Bool']) and row['Bool'] not in [0, 1])):
+        #---------------------Keyword Uncorrespondence Invalidity------------------#
+        if ((type(row['Bool']) == str and row['Bool'].lower() not in ['true', 'false' 't', 'f', '1', '0' 'yes' 'no'])
+            or (type(row['Bool']) == int and row['Bool'] not in [0, 1])):
                row['Validity'] = False
 
         #--------------------------Time Paradox Invalidity-------------------------#
-        if row['Validity'] and row['Bool']:
+        if row['Validity'] and self.convertToBool(row['Bool']):
             if (datetime.strptime(row['Start Time'], '%H:%M:%S') > datetime.strptime(row['End Time(True)/Time Length(False)'], '%H:%M:%S')):
                 row['Validity'] = False 
 
@@ -281,7 +281,7 @@ class MainWinCtrl():
             if row['Validity']:
                 startPix = self.convertTimeToPix(row['Start Time'])
                 endPixOrPixLength = self.convertTimeToPix(row['End Time(True)/Time Length(False)'])                
-                endPix = self.getEndPix(startPix, endPixOrPixLength, row['Bool'])
+                endPix = self.getEndPix(startPix, endPixOrPixLength, self.convertToBool(row['Bool']))
                 
                 frame = (startPix, 30, endPix, self.image.size[1] - 60)
                 color = str(row['Color']).lower()
