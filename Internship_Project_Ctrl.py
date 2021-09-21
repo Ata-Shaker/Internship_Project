@@ -12,6 +12,7 @@ from numpy import round
 
 class MainWinCtrl():
     def __init__(self, view):
+        Image.MAX_IMAGE_PIXELS = None
         self._view = view
         self.dialog = myDialog(self._view)
         self.dialogCtrl = myDialogCtrl(self.dialog)
@@ -84,6 +85,7 @@ class MainWinCtrl():
 
         #------------------------Getting PixPerSec Start---------------------------#
         self.SIZE = (self.getImageDimensions()[0]/len(self.images), self.getImageDimensions()[1]) 
+
         if self.cropCoordinate == None and self.imageLength == None:
             self.dialog.exec()
             #---------Checking Whether the Crop Coordinate in in Range Start-------#
@@ -93,11 +95,16 @@ class MainWinCtrl():
             else:
                 QMessageBox.critical(None, 'Crop Coordinate Out of Range!', f'Crop Coordinate must be less than {self.SIZE[0]}.')
                 return None
-
-
+        
+        #-------------------------------Cropping Start-----------------------------#
         for image in self.images[0:-1]:
             self.images[self.images.index(image)] = image.crop(
                 (0, 0, self.cropCoordinate, self.SIZE[1]))
+        
+        #-"What if dimensions of the final JPEG image is greater than 65535" Error-#
+        if (fileType == 'jpeg' or fileType == 'jpg') and (self.getImageDimensions()[0] > 65535 or self.getImageDimensions()[1] > 65535):
+            QMessageBox.critical(None, 'Size Error!', 'JPEG file extension does NOT support any dimensions larger than 65535.\nPlease select another file format.')
+            return None
 
         #-------------------------------------Merge Start-----------------------------------------#
         self.total_width = self.getImageDimensions()[0]
@@ -155,7 +162,7 @@ class MainWinCtrl():
         startTime = self._view.startTime.text()
         endTimeOrTimeLength = self._view.endTimeOrTimeLength.text()
         comment = self._view.comment.toPlainText()
-        color = str(self._view.color.currentText()).lower()
+        color = self.convertColorNameToColor(str(self._view.color.currentText()))
         
         os.chdir(r'{}'.format(destinationAddress))
         #--------"What if the Program couldn't open any files" Error Start---------#
@@ -284,7 +291,7 @@ class MainWinCtrl():
                 endPix = self.getEndPix(startPix, endPixOrPixLength, self.convertToBool(row['Bool']))
                 
                 frame = (startPix, 30, endPix, self.image.size[1] - 60)
-                color = str(row['Color']).lower()
+                color = self.convertColorNameToColor(str(row['Color']))
 
                 #----Setting an alternative way in case the Color is not valid-----#
                 if color in list(self.COLORS.keys()):
@@ -369,6 +376,9 @@ class MainWinCtrl():
             elif str(expression).lower() in ('false', 'no', 'f', '0'):
                 return False
 
+    def convertColorNameToColor(self, ColorName):
+        brokenColorName_List = ColorName.lower().split()
+        return ''.join(brokenColorName_List)
     #----------------------------Unused Function Start-----------------------------# 
     def radioEnableAndDisable(self):
         readOnlyPalette = QtGui.QPalette()

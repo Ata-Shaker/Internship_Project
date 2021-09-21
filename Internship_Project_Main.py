@@ -2,7 +2,6 @@ from Internship_Project_Ctrl import MainWinCtrl
 from PySide6.QtWidgets import QApplication, QCheckBox, QComboBox, QDateTimeEdit, QDialogButtonBox, QGroupBox, QLabel, QMainWindow, QRadioButton, QTimeEdit
 from PySide6.QtWidgets import QGridLayout, QPushButton, QTabWidget, QVBoxLayout, QWidget, QLineEdit, QPlainTextEdit
 from PySide6.QtCore import QDate, Qt 
-from PIL import ImageColor
 import sys
 
 
@@ -11,7 +10,6 @@ class myPlainTextEdit(QPlainTextEdit):
         super().__init__(parent)
     def keyPressEvent(self, e):
         '''This class is designed considering the limitations of merged images. '''
-
 
         if len(self.toPlainText()) < 100 and str(self.toPlainText()).count('\n') < 3 :
             if str(self.toPlainText()).count('\n') == 2 and e.key() == 16777220: # 16777220 is Numeric representaion of Qt.Key_Enter.
@@ -36,7 +34,17 @@ class MainWin(QMainWindow):
         self.general_Layout = QVBoxLayout(parent = self) 
         self.innerlayout_1 = QGridLayout() 
         self.innerlayout_1.setAlignment(Qt.AlignTop) 
-        
+        self.colorNames_List = ['Alice Blue', 'Antique White', 'Aqua', 'Aqua Marine', 'Azure', 'Beige', 'Bisque', 'Black', 'Blanched Almond', 'Blue', 'Blue Violet', 'Brown', 'Burlywood', 'Cadet Blue'
+        , 'Chartreuse', 'Chocolate', 'Coral', 'Cornflower Blue', 'Cornsilk', 'Crimson', 'Cyan', 'Dark Blue', 'Dark Cyan', 'Dark Goldenrod', 'Dark Gray', 'Dark Green', 'Dark Khaki'
+        , 'Dark Magenta', 'Dark Olive Green', 'Dark Orange', 'Dark Orchid', 'Dark Red', 'Dark Salmon', 'Dark Sea Green', 'Dark Slate Blue', 'Dark Slate Gray', 'Dark Turquoise', 'Dark Violet'
+        , 'Deep Pink', 'Deep Sky Blue', 'Dim Gray', 'Dodger Blue', 'Fire Brick', 'Floral White', 'Forest Green', 'Fuchsia', 'Gainsboro', 'Ghost White', 'Gold', 'Goldenrod', 'gray'
+        , 'Green', 'Green Yellow', 'Honeydew', 'Hot Pink', 'Indian Red', 'Indigo', 'Ivory', 'Khaki', 'Lavender', 'Lavender Blush', 'Lawn Green', 'Lemon Chiffon', 'Light Blue', 'Light Coral'
+        , 'Light Cyan', 'Light Goldenrod Yellow', 'Light Green', 'Light Gray', 'Light Pink', 'Light Salmon', 'Light Sea Green', 'Light Sky Blue', 'Light Slate Gray', 'Light Steel Blue'
+        , 'Light Yellow', 'Lime', 'Lime Green', 'Linen', 'Magenta', 'Maroon', 'Medium Aquamarine', 'Medium Blue', 'Medium Orchid', 'Medium Purple', 'Medium Sea Green', 'Medium Slate Blue'
+        , 'Medium Spring Green', 'Medium Turquoise', 'Medium Violet Red', 'Midnight Blue', 'Mint Cream', 'Misty Rose', 'Moccasin', 'Navajo White', 'Navy', 'Old Lace', 'Olive', 'Olive Drab'
+        , 'Orange', 'Orange Red', 'Orchid', 'Pale Goldenrod', 'Pale Green', 'Pale Turquoise', 'Pale Violet Red', 'Papayawhip', 'Peach Puff', 'Peru', 'Pink', 'Plum', 'Powder Blue', 'Purple'
+        , 'Rebecca Purple', 'Red', 'Rosy Brown', 'Royal Blue', 'Saddle Brown', 'Salmon', 'Sandy Brown', 'Sea Green', 'Seashell', 'Sienna', 'Silver', 'Sky Blue', 'Slate Blue', 'Slate Gray', 'Snow' 
+        , 'Spring Green', 'Steel Blue', 'Tan', 'Teal', 'Thistle', 'Tomato', 'Turquoise', 'Violet', 'Wheat', 'White', 'White Smoke', 'Yellow', 'Yellow Green']
         #----------------------------Mutual Setup Start----------------------------#
         self.addSourceWidgets() 
         self.addDestinationWidgets() 
@@ -177,7 +185,7 @@ class MainWin(QMainWindow):
 
         #-----------------------------Color Start----------------------------------#
         self.color = QComboBox(parent = self.annotateTab)
-        self.color.addItems(list(ImageColor.colormap.keys()))
+        self.color.addItems(self.colorNames_List)
         self.annotateTab_Layout.addWidget(self.color, 0, 4, 1, 2)
         
         #---------------------------End Time or Time Length Start------------------#
