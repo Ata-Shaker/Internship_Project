@@ -1,4 +1,5 @@
 Author: Ata Shaker
+
 Email: atashaker13@gmail.com
 
 --Ata's Image Editor--
