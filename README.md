@@ -1,6 +1,6 @@
 Author: Ata Shaker
 
-Email: atashaker13@gmail.com
+Email: Atashaker13@gmail.com, Shaker20@itu.edu.tr
 
 --Ata's Image Editor--
 
