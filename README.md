@@ -2,6 +2,7 @@ Author: Ata Shaker
 Email: atashaker13@gmail.com
 
 --Ata's Image Editor--
+
 On July 25, 2021, I started my Bachelor's Internship in Acoustic Sensing and Imaging Laboratory at Istanbul Technical University. During my tenure, I was tasked with building an application that crops and merges shorter images of seismic signals with equal length into one longer image. The application also can draw rectangular boxes on the final image and print comments under the boxes either by reading a CSV file with *.csv or *.txt extensions or  accepting single inputs by the user.
 
 WARNING: BECAUSE OF USING ARIAL FONT OF THE WINDOWS FOR COMMENTS,  THE APPLICATION IS RUNNABLE ONLY ON WINDOWS. IF ANY FUTURE DEVELOPER COULD MODIFY THIS IN A WAY THAT THE APP IS INDEPENDENT FROM WINDOWS FONTS FOLDER, THE APP WITH HIGH PROBABILITY WILL BE RUNNABLE ON OTHER PLATFORMS TOO.
