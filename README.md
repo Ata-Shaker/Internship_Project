@@ -1,6 +1,5 @@
 Author: Ata Shaker
-
-Email: Atashaker13@gmail.com, Shaker20@itu.edu.tr
+Email: Atashaker13@gmail.com
 
 --Ata's Image Editor--
 
@@ -21,7 +20,7 @@ After merging the user can continue to annotate on the “Annotate” tab. On th
 
 In case the user decides to add multiple boxes, they must create a *.CSV or a CSV-like *.TXT file containing the columns “Row”, “Start Time”, “End Time(True)/Time Length(False)” , “Bool”, “Comment” , “Color” otherwise there will be an error. The application is also capable of distinguishing between time length and endtime by reading the “End Time(True)/Time Length(False)” column. If the “End Time(True)/Time Length(False)” entry is one of the following: “True”, “T”, “1”, “Yes”, the application will interpret it as End Time. In case the entry is one of the following “False”, “F”, “0”, “No”, the application will interpret as Time Length. 
 
-WARNING: WHILE ENTERING TIME DATA TO THE *.CSV OR *.TXT FILE, “HH:MM:SS” MUST BE FOLLOWED, OTHERWISE, THAT ROW WILL BE DISQUALIFIED FROM EVALUATING. ALSO, PROVIDING ENTRY WHICH IS NOT MENTIONED ABOVE TO THE  “End Time(True)/Time Length(False)” COLUMN WILL ALSO RESULT IN DISQUALIFICATION. 
+WARNING: WHILE ENTERING TIME DATA TO THE *.CSV OR *.TXT FILE, “HH:MM:SS” MUST BE FOLLOWED, OTHERWISE, THAT ROW WILL BE DISQUALIFIED FROM EVALUATION. ALSO, PROVIDING ENTRY WHICH IS NOT MENTIONED ABOVE TO THE  “End Time(True)/Time Length(False)” COLUMN WILL ALSO RESULT IN DISQUALIFICATION. 
 
 The users are advised to select existing colors in the color combo box. In case the provided color doesn't exist in the color list or simply non-existent, the color blue will be chosen.
 
